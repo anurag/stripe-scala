@@ -39,7 +39,6 @@ abstract class APIResource {
   val className = this.getClass.getSimpleName.toLowerCase.replace("$","")
   val classURL = "%s/%ss".format(ApiBase, className)
   def instanceURL(id: String) = "%s/%s".format(classURL, id)
-  val camelCaseRegex = new Regex("(_.)")
 
   def createParameterList(paramMap: Map[String,_]): ListBuffer[(String, String)] = {
     /*
@@ -116,10 +115,12 @@ abstract class APIResource {
     return jsonAST
   }
 
+  val CamelCaseRegex = new Regex("(_.)")
+
   def interpretResponse(rBody: String, rCode: Int): json.JValue = {
     val jsonAST = json.parse(rBody).transform {
       //converts json camel_case field names to Scala camelCase field names
-      case json.JField(fieldName, x) => json.JField(camelCaseRegex.replaceAllIn(
+      case json.JField(fieldName, x) => json.JField(CamelCaseRegex.replaceAllIn(
         fieldName, (m: Regex.Match) => m.matched.substring(1).toUpperCase), x)
     }
     if (rCode < 200 || rCode >= 300) handleAPIError(rBody, rCode, jsonAST)
@@ -275,4 +276,84 @@ case class Subscription(
 )
 
 case class NextRecurringCharge(amount: Int, date: String)
-case class Discount(code: String, end: Long, id: String, `object`: String, percentOff: Int, start: Long)
+
+case class Discount(
+  code: String,
+  end: Option[Long],
+  id: Option[String],
+  `object`: Option[String],
+  percentOff: Int,
+  start: Option[Long]
+)
+
+case class InvoiceItem(
+  id: String,
+  `object`: String,
+  amount: Int,
+  currency: String,
+  date: Long,
+  description: Option[String])
+extends APIResource {
+  def update(params: Map[String,_]): InvoiceItem = {
+    return request("POST", instanceURL(this.id), params).extract[InvoiceItem]
+  }
+
+  def delete(): DeletedInvoiceItem = {
+    return request("DELETE", instanceURL(this.id)).extract[DeletedInvoiceItem]
+  }
+}
+
+case class DeletedInvoiceItem(id: String, deleted: Boolean)
+
+object InvoiceItem extends APIResource {
+  def create(params: Map[String,_]): InvoiceItem = {
+    return request("POST", classURL, params).extract[InvoiceItem]
+  }
+
+  def retrieve(id: String): InvoiceItem = {
+    return request("GET", instanceURL(id)).extract[InvoiceItem]
+  }
+
+  def all(params: Map[String,_] = Map.empty): List[InvoiceItem] = {
+    return request("GET", classURL, params).extract[List[InvoiceItem]]
+  }
+}
+
+case class InvoiceLineSubscriptionPeriod(start: Long, end: Long)
+case class InvoiceLineSubscription(plan: Plan, amount: Int, period: InvoiceLineSubscriptionPeriod)
+case class InvoiceLines(
+  subscriptions: Option[List[InvoiceLineSubscription]],
+  invoiceitems: Option[List[InvoiceItem]]
+)
+
+case class Invoice(
+  `object`: String,
+  subtotal: Int,
+  total: Int,
+  id: Option[String],
+  created: Option[Long],
+  attempted: Option[Boolean],
+  charge: Option[String],
+  closed: Option[Boolean],
+  customer: Option[String],
+  date: Option[Long],
+  paid: Option[Boolean],
+  periodStart: Option[Long],
+  periodEnd: Option[Long],
+  discount: Option[Discount],
+  lines: InvoiceLines) {
+}
+
+object Invoice extends APIResource {
+  def retrieve(id: String): Invoice = {
+    return request("GET", instanceURL(id)).extract[Invoice]
+  }
+
+  def all(params: Map[String,_] = Map.empty): List[Invoice] = {
+    return request("GET", classURL, params).extract[List[Invoice]]
+  }
+
+  def upcoming(params: Map[String, _]): Invoice = {
+    return request("GET", "%s/upcoming".format(classURL), params).extract[Invoice]
+  }
+}
