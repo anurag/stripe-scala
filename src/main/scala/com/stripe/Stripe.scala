@@ -40,26 +40,18 @@ abstract class APIResource {
   val classURL = "%s/%ss".format(ApiBase, className)
   def instanceURL(id: String) = "%s/%s".format(classURL, id)
 
-  def createParameterList(paramMap: Map[String,_]): ListBuffer[(String, String)] = {
-    /*
-        We want POST vars of form:
-        {'foo': 'bar', 'nested': {'a': 'b', 'c': 'd'}}
-        to become:
-        foo=bar&nested[a]=b&nested[c]=d
-    */
-    val paramList = new ListBuffer[(String, String)]
-    if (paramMap.isEmpty) return paramList
-    for ((key, value) <- paramMap) {
-      value match {
-        case None => //noop
-        case m: Map[_,_] => {
-          val flatMap = m.map(kv => ("%s[%s]".format(key,kv._1), kv._2))
-          paramList ++= createParameterList(flatMap)
-        }
-        case _ => paramList.append((key, value.toString))
-      }
+  /*
+      We want POST vars of form:
+      {'foo': 'bar', 'nested': {'a': 'b', 'c': 'd'}}
+      to become:
+      foo=bar&nested[a]=b&nested[c]=d
+  */
+  def flattenParam(k: String, v: Any): List[(String, String)] = {
+    return v match {
+      case None => Nil
+      case m: Map[_,_] => m.flatMap(kv => flattenParam("%s[%s]".format(k,kv._1), kv._2)).toList
+      case _ => List((k,v.toString))
     }
-    return paramList
   }
 
   def rawRequest(method: String, url: String, params: Map[String,_] = Map.empty): (String, Int) = {
@@ -79,7 +71,8 @@ abstract class APIResource {
       setParameter(CoreConnectionPNames.SO_TIMEOUT,80000) //80 seconds
 
     val client = new DefaultHttpClient(httpParams)
-    val paramList = createParameterList(params)
+    val paramList = params.flatMap(kv => flattenParam(kv._1, kv._2)).toList
+
     try {
       val response = method.toLowerCase match {
         case "get" => {
