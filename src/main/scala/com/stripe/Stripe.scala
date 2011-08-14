@@ -5,6 +5,7 @@ import java.net.URLEncoder
 import scala.collection.JavaConversions._
 import scala.collection.mutable.ListBuffer
 import scala.util.matching.Regex
+import scala.util.Properties
 
 import org.apache.commons.codec.binary.Base64
 import org.apache.http.client._
@@ -17,6 +18,7 @@ import org.apache.http.message._
 import org.apache.http.util._
 
 import net.liftweb.json
+import net.liftweb.json.JsonDSL._
 
 sealed abstract class StripeException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 case class APIException(msg: String, cause: Throwable = null) extends StripeException(msg, cause)
@@ -27,7 +29,7 @@ case class AuthenticationException(msg: String) extends StripeException(msg)
 
 abstract class APIResource {
   val ApiBase = "https://api.stripe.com/v1"
-  val Version = "1.0.0"
+  val BindingsVersion = "1.0.0"
   val CharSet = "UTF-8"
 
   //lift-json format initialization
@@ -54,43 +56,60 @@ abstract class APIResource {
     }
   }
 
-  def rawRequest(method: String, url: String, params: Map[String,_] = Map.empty): (String, Int) = {
+  def httpClient: DefaultHttpClient = {
     if (apiKey == null || apiKey.isEmpty) {
       throw AuthenticationException("No API key provided. (HINT: set your API key using 'stripe.apiKey = <API-KEY>'. You can generate API keys from the Stripe web interface. See https://stripe.com/api for details or email support@stripe.com if you have questions.")
     }
+
+    //debug headers
+    val javaPropNames = List("os.name", "os.version", "os.arch", "java.version", "java.vendor", "java.vm.version", "java.vm.vendor")
+    val javaPropMap = javaPropNames.map(n => (n.toString, Properties.propOrEmpty(n).toString)).toMap
+    val fullPropMap = javaPropMap + (
+      "scala.version" -> Properties.scalaPropOrEmpty("version.number"),
+      "bindings.version" -> BindingsVersion,
+      "lang" -> "scala",
+      "publisher" -> "stripe"
+    )
+
     val defaultHeaders = asJavaCollection(List(
-      new BasicHeader("X-Stripe-Client-User-Agent", "StripeScala"),
-      new BasicHeader("User-Agent", "Stripe/v1 ScalaBindings/%s".format(Version)),
+      new BasicHeader("X-Stripe-Client-User-Agent", json.compact(json.render(fullPropMap))),
+      new BasicHeader("User-Agent", "Stripe/v1 ScalaBindings/%s".format(BindingsVersion)),
       new BasicHeader("Authorization", "Basic %s".format(base64("%s:".format(apiKey))))
     ))
 
     val httpParams = new SyncBasicHttpParams().
       setParameter(ClientPNames.DEFAULT_HEADERS, defaultHeaders).
-      setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET,CharSet). //30 seconds
+      setParameter(CoreProtocolPNames.HTTP_CONTENT_CHARSET,CharSet).
       setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,30000). //30 seconds
       setParameter(CoreConnectionPNames.SO_TIMEOUT,80000) //80 seconds
 
-    val client = new DefaultHttpClient(httpParams)
-    val paramList = params.flatMap(kv => flattenParam(kv._1, kv._2)).toList
+    return new DefaultHttpClient(httpParams)
+  }
 
+  def getRequest(url: String, paramList: List[(String,String)]): HttpRequestBase = {
+    return new HttpGet("%s?%s".format(url, paramList.map(kv => urlEncodePair(kv._1, kv._2)).mkString("&")))
+  }
+
+  def deleteRequest(url: String): HttpRequestBase = { return new HttpDelete(url) }
+
+  def postRequest(url: String, paramList: List[(String, String)]): HttpRequestBase = {
+    val request = new HttpPost(url)
+    val postParamList = paramList.map(kv => new BasicNameValuePair(kv._1, kv._2))
+    request.setEntity(new UrlEncodedFormEntity(seqAsJavaList(postParamList), CharSet))
+    return request
+  }
+
+  def rawRequest(method: String, url: String, params: Map[String,_] = Map.empty): (String, Int) = {
+    val client = httpClient
+    val paramList = params.flatMap(kv => flattenParam(kv._1, kv._2)).toList
     try {
-      val response = method.toLowerCase match {
-        case "get" => {
-          val getURL = "%s?%s".format(url, paramList.map(kv => urlEncodePair(kv._1, kv._2)).mkString("&"))
-          client.execute(new HttpGet(getURL))
-        }
-        case "delete" => {
-          client.execute(new HttpDelete(url))
-        }
-        case "post" => {
-          val request = new HttpPost(url)
-          val postParamList = paramList.map(kv => new BasicNameValuePair(kv._1, kv._2))
-          request.setEntity(new UrlEncodedFormEntity(seqAsJavaList(postParamList), CharSet))
-          client.execute(request)
-        }
-        case _ => throw new APIConnectionException(
-          "Unrecognized HTTP method %r. This may indicate a bug in the Stripe bindings. Please contact support@stripe.com for assistance.".format(method))
+      val request = method.toLowerCase match {
+        case "get" => getRequest(url, paramList)
+        case "delete" => deleteRequest(url)
+        case "post" => postRequest(url, paramList)
+        case _ => throw new APIConnectionException("Unrecognized HTTP method %r. This may indicate a bug in the Stripe bindings. Please contact support@stripe.com for assistance.".format(method))
       }
+      val response = client.execute(request)
       val entity = response.getEntity
       val body = EntityUtils.toString(entity)
       EntityUtils.consume(entity)
