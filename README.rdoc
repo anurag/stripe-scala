@@ -2,7 +2,7 @@
 
 = Installation
 
-Requires scala 2.9.0 and 2.9.0-1. Add stripe-scala as a dependency in sbt or Maven:
+The current release is distributed for Scala 2.9.0 and 2.9.0-1. Add stripe-scala as a dependency in sbt or Maven:
 
 == sbt
 
