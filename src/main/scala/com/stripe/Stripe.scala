@@ -164,7 +164,6 @@ case class Card(
   expYear: Int,
   last4: String,
   country: String,
-  `object`: String,
   `type`: String,
   name: Option[String] = None,
   addressLine1: Option[String] = None,
@@ -179,7 +178,6 @@ case class Charge(
   currency: String,
   id: String,
   livemode: Boolean,
-  `object`: String,
   paid: Boolean,
   refunded: Boolean,
   card: Card) extends APIResource {
@@ -203,7 +201,6 @@ case class Customer(
   id: String,
   created: Long,
   livemode: Boolean,
-  `object`: String,
   activeCard: Option[Card],
   email: Option[String],
   description: Option[String],
@@ -252,7 +249,6 @@ case class Plan(
   id: String,
   interval: String,
   name: String,
-  `object`: String,
   trialPeriodDays: Option[Int]) extends APIResource {
   def delete(): DeletedPlan = {
     return request("DELETE", instanceURL(this.id)).extract[DeletedPlan]
@@ -279,7 +275,6 @@ case class Subscription(
   currentPeriodEnd: Long,
   currentPeriodStart: Long,
   customer: String,
-  `object`: String,
   start: Long,
   status: String,
   trialStart: Option[Long],
@@ -293,14 +288,12 @@ case class Discount(
   code: String,
   end: Option[Long],
   id: Option[String],
-  `object`: Option[String],
   percentOff: Int,
   start: Option[Long]
 )
 
 case class InvoiceItem(
   id: String,
-  `object`: String,
   amount: Int,
   currency: String,
   date: Long,
@@ -339,7 +332,6 @@ case class InvoiceLines(
 )
 
 case class Invoice(
-  `object`: String,
   subtotal: Int,
   total: Int,
   id: Option[String],

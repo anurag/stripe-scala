@@ -102,8 +102,8 @@ class CustomerSuite extends FunSuite with StripeSuite {
 
 class PlanSuite extends FunSuite with StripeSuite {
   test("Plans can be created") {
-    val plan = Plan.create(getUniquePlanMap)
-    plan.`object` should equal ("plan")
+    val plan = Plan.create(getUniquePlanMap + ("interval" -> "year"))
+    plan.interval should equal ("year")
   }
 
   test("Plans can be retrieved individually") {
@@ -166,7 +166,6 @@ class InvoiceItemSuite extends FunSuite with StripeSuite {
 
   test("InvoiceItems can be created") {
     val invoiceItem = createDefaultInvoiceItem()
-    invoiceItem.`object` should be ("invoiceitem")
     invoiceItem.date should be > (0L)
   }
 
@@ -230,7 +229,6 @@ class InvoiceSuite extends FunSuite with StripeSuite {
     val customer = Customer.create(DefaultCustomerMap)
     val invoiceItem = InvoiceItem.create(DefaultInvoiceItemMap + ("customer" -> customer.id))
     val upcomingInvoice = Invoice.upcoming(Map("customer" -> customer.id))
-    upcomingInvoice.lines.invoiceitems.get.head.`object` should equal ("invoiceitem")
     upcomingInvoice.attempted.get should be (false)
   }
 }
