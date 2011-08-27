@@ -1,3 +1,46 @@
 = Stripe Scala bindings
 
-Coming Soon
+= Installation
+
+Requires scala 2.9.0 and 2.9.0-1. Add stripe-scala as a dependency in sbt or Maven:
+
+== sbt
+
+Add the stripe-scala dependency:
+
+    val stripeScala = "com.stripe" %% "stripe-scala" % "1.0.0"
+
+== Maven
+
+Add the Scala-Tools repository and the stripe-scala dependency to your POM:
+
+    <dependencies>
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-scala_1.0.0</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+    </dependencies>
+    <repositories>
+        <repository>
+            <id>ScalaToolsMaven2Repository</id>
+            <name>Scala-Tools Maven2 Repository</name>
+            <url>http://scala-tools.org/repo-releases</url>
+        </repository>
+    </repositories>
+
+= Documentation
+
+== Example
+
+    import com.stripe
+    stripe.apiKey = "sSs57dBsUSkxo3lQPsNKNDX5H0RAcYsj"
+    val charge = stripe.Charge.create(Map(
+      "amount" -> 100,
+      "currency" -> "usd",
+      "card" -> Map("number" -> "4242424242424242", "exp_month" -> 3, "exp_year" -> 2015)
+    ))
+
+See src/test/scala/com/stripe/StripeSuite.scala for more examples.
+
+See http://stripe.com/api for the most up-to-date documentation.
