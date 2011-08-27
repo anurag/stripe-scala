@@ -1,7 +1,7 @@
 = Stripe Scala bindings
 
-== Quickstart
-In the +stripe-scala+ directory, run <tt>sbt compile</tt>. Start the sbt REPL by running +sbt+, and in the sbt REPL execute +console+. You're now in a Scala REPL where you can import +com.stripe+. Set your +stripe.apiKey+ to something useful, and start making API requests. (See the Example section at the end of this file.)
+== Quickstart with sbt 0.10
+In the +stripe-scala+ directory, run <tt>sbt console</tt>. You're now in a Scala REPL where you can import +com.stripe+. Set your +stripe.apiKey+ and start making API requests. (See the Example section at the end of this file)
 
 == Installation
 The current release is distributed for <b>Scala 2.9.0 or later</b>. Add +stripe-scala+ as a dependency in sbt or Maven:
