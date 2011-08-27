@@ -1,14 +1,17 @@
 = Stripe Scala bindings
 
-= Installation
-The current release is distributed for Scala 2.9.0 and 2.9.0-1. Add stripe-scala as a dependency in sbt or Maven:
+== Quickstart
+In the +stripe-scala+ directory, run <tt>sbt compile</tt>. Start the sbt REPL by running +sbt+, and in the sbt REPL execute +console+. You're now in a Scala REPL where you can import +com.stripe+. Set your +stripe.apiKey+ to something useful, and start making API requests. (See the Example section at the end of this file.)
 
-== sbt
+== Installation
+The current release is distributed for <b>Scala 2.9.0 or later</b>. Add +stripe-scala+ as a dependency in sbt or Maven:
+
+=== sbt
 Add the stripe-scala dependency:
 
     val stripeScala = "com.stripe" %% "stripe-scala" % "1.0.0"
 
-== Maven
+=== Maven
 Add the Scala-Tools repository and the stripe-scala dependency to your POM:
 
     <dependencies>
@@ -26,8 +29,8 @@ Add the Scala-Tools repository and the stripe-scala dependency to your POM:
         </repository>
     </repositories>
 
-= Documentation
-== Example
+== Documentation
+=== Example
 
     import com.stripe
     stripe.apiKey = "sSs57dBsUSkxo3lQPsNKNDX5H0RAcYsj"
