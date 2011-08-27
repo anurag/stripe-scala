@@ -39,4 +39,4 @@ Add the Scala-Tools repository and the stripe-scala dependency to your POM:
 
 See src/test/scala/com/stripe/StripeSuite.scala for more examples.
 
-See http://stripe.com/api for the most up-to-date documentation.
+See https://stripe.com/api for the most up-to-date documentation.
