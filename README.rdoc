@@ -1,17 +1,14 @@
 = Stripe Scala bindings
 
 = Installation
-
 The current release is distributed for Scala 2.9.0 and 2.9.0-1. Add stripe-scala as a dependency in sbt or Maven:
 
 == sbt
-
 Add the stripe-scala dependency:
 
     val stripeScala = "com.stripe" %% "stripe-scala" % "1.0.0"
 
 == Maven
-
 Add the Scala-Tools repository and the stripe-scala dependency to your POM:
 
     <dependencies>
@@ -30,7 +27,6 @@ Add the Scala-Tools repository and the stripe-scala dependency to your POM:
     </repositories>
 
 = Documentation
-
 == Example
 
     import com.stripe
