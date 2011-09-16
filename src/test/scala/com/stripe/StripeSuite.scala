@@ -51,7 +51,7 @@ class ChargeSuite extends FunSuite with StripeSuite {
 
   test("Charges can be listed") {
     val charge = Charge.create(DefaultChargeMap)
-    val charges = Charge.all()
+    val charges = Charge.all().data
     charges.head.isInstanceOf[Charge] should be (true)
   }
 
@@ -95,7 +95,7 @@ class CustomerSuite extends FunSuite with StripeSuite {
 
   test("Customers can be listed") {
     val customer = Customer.create(DefaultCustomerMap)
-    val customers = Customer.all()
+    val customers = Customer.all().data
     customers.head.isInstanceOf[Customer] should be (true)
   }
 }
@@ -121,7 +121,7 @@ class PlanSuite extends FunSuite with StripeSuite {
 
   test("Plans can be listed") {
     val plan = Plan.create(getUniquePlanMap)
-    val plans = Plan.all()
+    val plans = Plan.all().data
     plans.head.isInstanceOf[Plan] should be (true)
   }
 
@@ -193,7 +193,7 @@ class InvoiceItemSuite extends FunSuite with StripeSuite {
 
   test("InvoiceItems can be listed") {
     val invoiceItem = createDefaultInvoiceItem()
-    val invoiceItems = InvoiceItem.all()
+    val invoiceItems = InvoiceItem.all().data
     invoiceItems.head.isInstanceOf[InvoiceItem] should be (true)
   }
 }
@@ -202,7 +202,7 @@ class InvoiceSuite extends FunSuite with StripeSuite {
   test("Invoices can be retrieved individually") {
     val plan = Plan.create(getUniquePlanMap)
     val customer = Customer.create(DefaultCustomerMap + ("plan" -> plan.id))
-    val invoices = Invoice.all(Map("customer" -> customer.id))
+    val invoices = Invoice.all(Map("customer" -> customer.id)).data
     val createdInvoice = invoices.head
     val retrievedInvoice = Invoice.retrieve(createdInvoice.id.get)
     retrievedInvoice.id.get should equal (createdInvoice.id.get)
@@ -211,14 +211,14 @@ class InvoiceSuite extends FunSuite with StripeSuite {
   test("Invoices can be listed") {
     val plan = Plan.create(getUniquePlanMap)
     val customer = Customer.create(DefaultCustomerMap + ("plan" -> plan.id))
-    val invoices = Invoice.all()
+    val invoices = Invoice.all().data
     invoices.head.isInstanceOf[Invoice] should be (true)
   }
 
   test("Invoices can be retrieved for a customer") {
     val plan = Plan.create(getUniquePlanMap)
     val customer = Customer.create(DefaultCustomerMap + ("plan" -> plan.id))
-    val invoices = Invoice.all(Map("customer" -> customer.id))
+    val invoices = Invoice.all(Map("customer" -> customer.id)).data
     val invoice = invoices.head
     invoice.customer.get should equal (customer.id)
     val invoiceLineSubscription = invoice.lines.subscriptions.get.head

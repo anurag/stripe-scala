@@ -184,19 +184,23 @@ case class Charge(
   def refund(): Charge = request("POST", "%s/refund".format(instanceURL(this.id))).extract[Charge]
 }
 
+case class ChargeCollection(data: List[Charge])
+
 object Charge extends APIResource {
   def create(params: Map[String,_]): Charge = {
     return request("POST", classURL, params).extract[Charge]
   }
 
-  def all(params: Map[String,_] = Map.empty): List[Charge] = {
-    return request("GET", classURL, params).extract[List[Charge]]
-  }
-
   def retrieve(id: String): Charge = {
     return request("GET", instanceURL(id)).extract[Charge]
   }
+
+  def all(params: Map[String,_] = Map.empty): ChargeCollection = {
+    return request("GET", classURL, params).extract[ChargeCollection]
+  }
+
 }
+
 case class Customer(
   id: String,
   created: Long,
@@ -229,6 +233,8 @@ case class Customer(
 
 case class DeletedCustomer(id: String, deleted: Boolean)
 
+case class CustomerCollection(data: List[Customer])
+
 object Customer extends APIResource {
   def create(params: Map[String,_]): Customer = {
     return request("POST", classURL, params).extract[Customer]
@@ -238,8 +244,8 @@ object Customer extends APIResource {
     return request("GET", instanceURL(id)).extract[Customer]
   }
 
-  def all(params: Map[String,_] = Map.empty): List[Customer] = {
-    return request("GET", classURL, params).extract[List[Customer]]
+  def all(params: Map[String,_] = Map.empty): CustomerCollection = {
+    return request("GET", classURL, params).extract[CustomerCollection]
   }
 }
 
@@ -255,6 +261,8 @@ case class Plan(
   }
 }
 
+case class PlanCollection(data: List[Plan])
+
 case class DeletedPlan(id: String, deleted: Boolean)
 
 object Plan extends APIResource {
@@ -266,8 +274,8 @@ object Plan extends APIResource {
     return request("GET", instanceURL(id)).extract[Plan]
   }
 
-  def all(params: Map[String,_] = Map.empty): List[Plan] = {
-    return request("GET", classURL, params).extract[List[Plan]]
+  def all(params: Map[String,_] = Map.empty): PlanCollection = {
+    return request("GET", classURL, params).extract[PlanCollection]
   }
 }
 
@@ -310,6 +318,8 @@ extends APIResource {
 
 case class DeletedInvoiceItem(id: String, deleted: Boolean)
 
+case class InvoiceItemCollection(data: List[InvoiceItem])
+
 object InvoiceItem extends APIResource {
   def create(params: Map[String,_]): InvoiceItem = {
     return request("POST", classURL, params).extract[InvoiceItem]
@@ -319,8 +329,8 @@ object InvoiceItem extends APIResource {
     return request("GET", instanceURL(id)).extract[InvoiceItem]
   }
 
-  def all(params: Map[String,_] = Map.empty): List[InvoiceItem] = {
-    return request("GET", classURL, params).extract[List[InvoiceItem]]
+  def all(params: Map[String,_] = Map.empty): InvoiceItemCollection = {
+    return request("GET", classURL, params).extract[InvoiceItemCollection]
   }
 }
 
@@ -348,13 +358,15 @@ case class Invoice(
   lines: InvoiceLines) {
 }
 
+case class InvoiceCollection(data: List[Invoice])
+
 object Invoice extends APIResource {
   def retrieve(id: String): Invoice = {
     return request("GET", instanceURL(id)).extract[Invoice]
   }
 
-  def all(params: Map[String,_] = Map.empty): List[Invoice] = {
-    return request("GET", classURL, params).extract[List[Invoice]]
+  def all(params: Map[String,_] = Map.empty): InvoiceCollection = {
+    return request("GET", classURL, params).extract[InvoiceCollection]
   }
 
   def upcoming(params: Map[String, _]): Invoice = {
