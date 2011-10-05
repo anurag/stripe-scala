@@ -373,3 +373,23 @@ object Invoice extends APIResource {
     return request("GET", "%s/upcoming".format(classURL), params).extract[Invoice]
   }
 }
+
+case class Token(
+  amount: Int,
+  created: Int,
+  currency: String,
+  id: String,
+  livemode: Boolean,
+  used: Boolean,
+  card: Card) extends APIResource {
+}
+
+object Token extends APIResource {
+  def create(params: Map[String,_]): Token = {
+    return request("POST", classURL, params).extract[Token]
+  }
+
+  def retrieve(id: String): Token = {
+    return request("GET", instanceURL(id)).extract[Token]
+  }
+}

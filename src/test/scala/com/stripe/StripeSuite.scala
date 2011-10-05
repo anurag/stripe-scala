@@ -232,3 +232,22 @@ class InvoiceSuite extends FunSuite with StripeSuite {
     upcomingInvoice.attempted.get should be (false)
   }
 }
+
+class TokenSuite extends FunSuite with StripeSuite {
+  test("Tokens can be created") {
+    val token = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
+    token.used should be (false)
+  }
+  test("Tokens can be retrieved") {
+    val createdToken = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
+    val retrievedToken = Token.retrieve(createdToken.id)
+    createdToken.created should equal (retrievedToken.created)
+  }
+  test("Tokens can be used") {
+    val createdToken = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
+    createdToken.used should be (false)
+    val charge = Charge.create(Map("amount" -> 100, "currency" -> "usd", "card" -> createdToken.id))
+    val retrievedToken = Token.retrieve(createdToken.id)
+    retrievedToken.used should equal (true)
+  }
+}
