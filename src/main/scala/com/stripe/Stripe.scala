@@ -29,7 +29,7 @@ case class AuthenticationException(msg: String) extends StripeException(msg)
 
 abstract class APIResource {
   val ApiBase = "https://api.stripe.com/v1"
-  val BindingsVersion = "1.0.0"
+  val BindingsVersion = "1.0.1"
   val CharSet = "UTF-8"
 
   //lift-json format initialization
@@ -174,17 +174,19 @@ case class Card(
 
 case class Charge(
   amount: Int,
-  created: Int,
+  created: Long,
+  fee: Int,
   currency: String,
   id: String,
   livemode: Boolean,
   paid: Boolean,
   refunded: Boolean,
+  description: Option[String],
   card: Card) extends APIResource {
   def refund(): Charge = request("POST", "%s/refund".format(instanceURL(this.id))).extract[Charge]
 }
 
-case class ChargeCollection(data: List[Charge])
+case class ChargeCollection(count: Int, data: List[Charge])
 
 object Charge extends APIResource {
   def create(params: Map[String,_]): Charge = {
@@ -233,7 +235,7 @@ case class Customer(
 
 case class DeletedCustomer(id: String, deleted: Boolean)
 
-case class CustomerCollection(data: List[Customer])
+case class CustomerCollection(count: Int, data: List[Customer])
 
 object Customer extends APIResource {
   def create(params: Map[String,_]): Customer = {
@@ -255,13 +257,14 @@ case class Plan(
   id: String,
   interval: String,
   name: String,
+  livemode: Boolean,
   trialPeriodDays: Option[Int]) extends APIResource {
   def delete(): DeletedPlan = {
     return request("DELETE", instanceURL(this.id)).extract[DeletedPlan]
   }
 }
 
-case class PlanCollection(data: List[Plan])
+case class PlanCollection(count: Int, data: List[Plan])
 
 case class DeletedPlan(id: String, deleted: Boolean)
 
@@ -305,6 +308,7 @@ case class InvoiceItem(
   amount: Int,
   currency: String,
   date: Long,
+  livemode: Boolean,
   description: Option[String])
 extends APIResource {
   def update(params: Map[String,_]): InvoiceItem = {
@@ -318,7 +322,7 @@ extends APIResource {
 
 case class DeletedInvoiceItem(id: String, deleted: Boolean)
 
-case class InvoiceItemCollection(data: List[InvoiceItem])
+case class InvoiceItemCollection(count: Int, data: List[InvoiceItem])
 
 object InvoiceItem extends APIResource {
   def create(params: Map[String,_]): InvoiceItem = {
@@ -358,7 +362,7 @@ case class Invoice(
   lines: InvoiceLines) {
 }
 
-case class InvoiceCollection(data: List[Invoice])
+case class InvoiceCollection(count: Int, data: List[Invoice])
 
 object Invoice extends APIResource {
   def retrieve(id: String): Invoice = {
