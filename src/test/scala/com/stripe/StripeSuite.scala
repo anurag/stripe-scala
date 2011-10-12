@@ -29,6 +29,11 @@ trait StripeSuite extends ShouldMatchers {
   def getUniquePlanMap(): Map[String,_] = return DefaultPlanMap + ("id" -> getUniquePlanId())
 
   val DefaultInvoiceItemMap = Map("amount" -> 100, "currency" -> "usd")
+
+  def getUniqueCouponMap(): Map[String,_] = Map("id" -> "COUPON-%s".format(UUID.randomUUID()),
+    "duration" -> "once",
+    "percent_off" -> 10
+  )
 }
 
 class ChargeSuite extends FunSuite with StripeSuite {
@@ -238,16 +243,44 @@ class TokenSuite extends FunSuite with StripeSuite {
     val token = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
     token.used should be (false)
   }
+
   test("Tokens can be retrieved") {
     val createdToken = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
     val retrievedToken = Token.retrieve(createdToken.id)
     createdToken.created should equal (retrievedToken.created)
   }
+
   test("Tokens can be used") {
     val createdToken = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
     createdToken.used should be (false)
     val charge = Charge.create(Map("amount" -> 100, "currency" -> "usd", "card" -> createdToken.id))
     val retrievedToken = Token.retrieve(createdToken.id)
     retrievedToken.used should equal (true)
+  }
+}
+
+class CouponSuite extends FunSuite with StripeSuite {
+  test("Coupons can be created") {
+    val coupon = Coupon.create(getUniqueCouponMap)
+    coupon.percentOff should equal (10)
+  }
+
+  test("Coupons can be retrieved individually") {
+    val createdCoupon = Coupon.create(getUniqueCouponMap)
+    val retrievedCoupon = Coupon.retrieve(createdCoupon.id)
+    createdCoupon should equal (retrievedCoupon)
+  }
+
+  test("Coupons can be deleted") {
+    val coupon = Coupon.create(getUniqueCouponMap)
+    val deletedCoupon = coupon.delete()
+    deletedCoupon.deleted should be (true)
+    deletedCoupon.id should equal (coupon.id)
+  }
+
+  test("Coupons can be listed") {
+    val coupon = Coupon.create(getUniqueCouponMap)
+    val coupons = Coupon.all().data
+    coupons.head.isInstanceOf[Coupon] should be (true)
   }
 }

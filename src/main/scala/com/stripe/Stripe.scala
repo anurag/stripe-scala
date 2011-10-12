@@ -29,7 +29,7 @@ case class AuthenticationException(msg: String) extends StripeException(msg)
 
 abstract class APIResource {
   val ApiBase = "https://api.stripe.com/v1"
-  val BindingsVersion = "1.0.1"
+  val BindingsVersion = "1.0.2"
   val CharSet = "UTF-8"
 
   //lift-json format initialization
@@ -395,5 +395,33 @@ object Token extends APIResource {
 
   def retrieve(id: String): Token = {
     return request("GET", instanceURL(id)).extract[Token]
+  }
+}
+
+case class Coupon(
+  id: String,
+  duration: String,
+  livemode: Boolean,
+  percentOff: Int) extends APIResource {
+  def delete(): DeletedCoupon = {
+    return request("DELETE", instanceURL(this.id)).extract[DeletedCoupon]
+  }
+}
+
+case class CouponCollection(count: Int, data: List[Coupon])
+
+case class DeletedCoupon(id: String, deleted: Boolean)
+
+object Coupon extends APIResource {
+  def create(params: Map[String,_]): Coupon = {
+    return request("POST", classURL, params).extract[Coupon]
+  }
+
+  def retrieve(id: String): Coupon = {
+    return request("GET", instanceURL(id)).extract[Coupon]
+  }
+
+  def all(params: Map[String,_] = Map.empty): CouponCollection = {
+    return request("GET", classURL, params).extract[CouponCollection]
   }
 }
