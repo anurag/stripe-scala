@@ -29,7 +29,7 @@ case class AuthenticationException(msg: String) extends StripeException(msg)
 
 abstract class APIResource {
   val ApiBase = "https://api.stripe.com/v1"
-  val BindingsVersion = "1.0.2"
+  val BindingsVersion = "1.0.3"
   val CharSet = "UTF-8"
 
   //lift-json format initialization
