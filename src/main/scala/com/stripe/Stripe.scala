@@ -83,7 +83,7 @@ abstract class APIResource {
       setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,30000). //30 seconds
       setParameter(CoreConnectionPNames.SO_TIMEOUT,80000) //80 seconds
 
-    return new DefaultHttpClient(httpParams)
+    return new DefaultHttpClient(connectionManager, httpParams)
   }
 
   def getRequest(url: String, paramList: List[(String,String)]): HttpRequestBase = {
