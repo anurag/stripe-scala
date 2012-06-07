@@ -58,12 +58,12 @@ case class Transfer(
   
 object Transfer extends APIResource {
 
-  def retrieve(id: String): Plan = {
-    return request("GET", instanceURL(id)).extract[Plan]
+  def retrieve(id: String): Transfer = {
+    return request("GET", instanceURL(id)).extract[Transfer]
   }
 
-  def all(params: Map[String,_] = Map.empty): PlanCollection = {
-    return request("GET", classURL, params).extract[PlanCollection]
+  def all(params: Map[String,_] = Map.empty): TransferCollection = {
+    return request("GET", classURL, params).extract[TransferCollection]
   }
 }
 
