@@ -9,7 +9,7 @@ The current release is distributed for <b>Scala 2.9.0 or later</b>. Add +stripe-
 === sbt
 Add the stripe-scala dependency:
 
-    val stripeScala = "com.stripe" %% "stripe-scala" % "1.0.5"
+    val stripeScala = "com.stripe" %% "stripe-scala" % "1.0.7"
 
 === Maven
 Add the Scala-Tools repository and the stripe-scala dependency to your POM:
@@ -18,7 +18,7 @@ Add the Scala-Tools repository and the stripe-scala dependency to your POM:
         <dependency>
             <groupId>com.stripe</groupId>
             <artifactId>stripe-scala_2.9.1</artifactId> <!-- replace with your Scala version -->
-            <version>1.0.5</version>
+            <version>1.0.6</version>
         </dependency>
     </dependencies>
     <repositories>
