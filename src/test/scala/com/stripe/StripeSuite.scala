@@ -183,7 +183,7 @@ class InvoiceItemSuite extends FunSuite with StripeSuite {
   test("InvoiceItems can be updated") {
     val invoiceItem = createDefaultInvoiceItem()
     val updatedInvoiceItem = invoiceItem.update(Map(
-      "amount" -> 200, "currency" -> "usd", "description" -> "Updated Scala InvoiceItem"
+      "amount" -> 200, "description" -> "Updated Scala InvoiceItem"
     ))
     updatedInvoiceItem.amount should equal (200)
     updatedInvoiceItem.description.get should equal ("Updated Scala InvoiceItem")
