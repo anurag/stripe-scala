@@ -6,7 +6,7 @@ import java.util.UUID
 
 trait StripeSuite extends ShouldMatchers {
   //set the stripe API key
-  apiKey = System.getProperty("apiKey")
+  apiKey = System.getProperty("stripeApiKey")
 
   val DefaultCardMap = Map(
     "name" -> "Scala User",

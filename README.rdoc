@@ -29,6 +29,10 @@ Add the Scala-Tools repository and the stripe-scala dependency to your POM:
         </repository>
     </repositories>
 
+== Run the test suite
+
+In the +stripe-scala+ directory, run <tt>sbt -DstripeApiKey=myTestApiKey test</tt>, using your stripe test secret key.
+
 == Documentation
 === Example
 
