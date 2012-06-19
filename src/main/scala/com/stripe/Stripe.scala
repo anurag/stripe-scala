@@ -381,7 +381,6 @@ object Invoice extends APIResource {
 case class Token(
   amount: Int,
   created: Int,
-  currency: String,
   id: String,
   livemode: Boolean,
   used: Boolean,
