@@ -83,11 +83,11 @@ abstract class APIResource {
       setParameter(CoreConnectionPNames.CONNECTION_TIMEOUT,30000). //30 seconds
       setParameter(CoreConnectionPNames.SO_TIMEOUT,80000) //80 seconds
 
-    return new DefaultHttpClient(connectionManager, httpParams)
+    new DefaultHttpClient(connectionManager, httpParams)
   }
 
   def getRequest(url: String, paramList: List[(String,String)]): HttpRequestBase = {
-    return new HttpGet("%s?%s".format(url, paramList.map(kv => urlEncodePair(kv._1, kv._2)).mkString("&")))
+    new HttpGet("%s?%s".format(url, paramList.map(kv => urlEncodePair(kv._1, kv._2)).mkString("&")))
   }
 
   def deleteRequest(url: String): HttpRequestBase = { return new HttpDelete(url) }
@@ -96,7 +96,7 @@ abstract class APIResource {
     val request = new HttpPost(url)
     val postParamList = paramList.map(kv => new BasicNameValuePair(kv._1, kv._2))
     request.setEntity(new UrlEncodedFormEntity(seqAsJavaList(postParamList), CharSet))
-    return request
+    request
   }
 
   def rawRequest(method: String, url: String, params: Map[String,_] = Map.empty): (String, Int) = {
@@ -113,7 +113,7 @@ abstract class APIResource {
       val entity = response.getEntity
       val body = EntityUtils.toString(entity)
       EntityUtils.consume(entity)
-      return (body, response.getStatusLine.getStatusCode)
+      (body, response.getStatusLine.getStatusCode)
     } catch {
       case e @ (_: java.io.IOException | _: ClientProtocolException) => throw APIConnectionException("Could not connect to Stripe (%s). Please check your internet connection and try again. If this problem persists, you should check Stripe's service status at https://twitter.com/stripe, or let us know at support@stripe.com.".format(ApiBase), e)
     } finally {
@@ -190,15 +190,15 @@ case class ChargeCollection(count: Int, data: List[Charge])
 
 object Charge extends APIResource {
   def create(params: Map[String,_]): Charge = {
-    return request("POST", classURL, params).extract[Charge]
+    request("POST", classURL, params).extract[Charge]
   }
 
   def retrieve(id: String): Charge = {
-    return request("GET", instanceURL(id)).extract[Charge]
+    request("GET", instanceURL(id)).extract[Charge]
   }
 
   def all(params: Map[String,_] = Map.empty): ChargeCollection = {
-    return request("GET", classURL, params).extract[ChargeCollection]
+    request("GET", classURL, params).extract[ChargeCollection]
   }
 
 }
@@ -217,19 +217,19 @@ case class Customer(
   subscription: Option[Subscription]
 ) extends APIResource {
   def update(params: Map[String,_]): Customer = {
-    return request("POST", instanceURL(this.id), params).extract[Customer]
+    request("POST", instanceURL(this.id), params).extract[Customer]
   }
 
   def delete(): DeletedCustomer = {
-    return request("DELETE", instanceURL(this.id)).extract[DeletedCustomer]
+    request("DELETE", instanceURL(this.id)).extract[DeletedCustomer]
   }
 
   def updateSubscription(params: Map[String,_]): Subscription = {
-    return request("POST", "%s/subscription".format(instanceURL(id)), params).extract[Subscription]
+    request("POST", "%s/subscription".format(instanceURL(id)), params).extract[Subscription]
   }
 
   def cancelSubscription(params: Map[String,_] = Map.empty): Subscription = {
-    return request("DELETE", "%s/subscription".format(instanceURL(id)), params).extract[Subscription]
+    request("DELETE", "%s/subscription".format(instanceURL(id)), params).extract[Subscription]
   }
 }
 
@@ -239,15 +239,15 @@ case class CustomerCollection(count: Int, data: List[Customer])
 
 object Customer extends APIResource {
   def create(params: Map[String,_]): Customer = {
-    return request("POST", classURL, params).extract[Customer]
+    request("POST", classURL, params).extract[Customer]
   }
 
   def retrieve(id: String): Customer = {
-    return request("GET", instanceURL(id)).extract[Customer]
+    request("GET", instanceURL(id)).extract[Customer]
   }
 
   def all(params: Map[String,_] = Map.empty): CustomerCollection = {
-    return request("GET", classURL, params).extract[CustomerCollection]
+    request("GET", classURL, params).extract[CustomerCollection]
   }
 }
 
@@ -260,7 +260,7 @@ case class Plan(
   livemode: Boolean,
   trialPeriodDays: Option[Int]) extends APIResource {
   def delete(): DeletedPlan = {
-    return request("DELETE", instanceURL(this.id)).extract[DeletedPlan]
+    request("DELETE", instanceURL(this.id)).extract[DeletedPlan]
   }
 }
 
@@ -270,15 +270,15 @@ case class DeletedPlan(id: String, deleted: Boolean)
 
 object Plan extends APIResource {
   def create(params: Map[String,_]): Plan = {
-    return request("POST", classURL, params).extract[Plan]
+    request("POST", classURL, params).extract[Plan]
   }
 
   def retrieve(id: String): Plan = {
-    return request("GET", instanceURL(id)).extract[Plan]
+    request("GET", instanceURL(id)).extract[Plan]
   }
 
   def all(params: Map[String,_] = Map.empty): PlanCollection = {
-    return request("GET", classURL, params).extract[PlanCollection]
+    request("GET", classURL, params).extract[PlanCollection]
   }
 }
 
@@ -312,11 +312,11 @@ case class InvoiceItem(
   description: Option[String])
 extends APIResource {
   def update(params: Map[String,_]): InvoiceItem = {
-    return request("POST", instanceURL(this.id), params).extract[InvoiceItem]
+    request("POST", instanceURL(this.id), params).extract[InvoiceItem]
   }
 
   def delete(): DeletedInvoiceItem = {
-    return request("DELETE", instanceURL(this.id)).extract[DeletedInvoiceItem]
+    request("DELETE", instanceURL(this.id)).extract[DeletedInvoiceItem]
   }
 }
 
@@ -326,15 +326,15 @@ case class InvoiceItemCollection(count: Int, data: List[InvoiceItem])
 
 object InvoiceItem extends APIResource {
   def create(params: Map[String,_]): InvoiceItem = {
-    return request("POST", classURL, params).extract[InvoiceItem]
+    request("POST", classURL, params).extract[InvoiceItem]
   }
 
   def retrieve(id: String): InvoiceItem = {
-    return request("GET", instanceURL(id)).extract[InvoiceItem]
+    request("GET", instanceURL(id)).extract[InvoiceItem]
   }
 
   def all(params: Map[String,_] = Map.empty): InvoiceItemCollection = {
-    return request("GET", classURL, params).extract[InvoiceItemCollection]
+    request("GET", classURL, params).extract[InvoiceItemCollection]
   }
 }
 
@@ -370,11 +370,11 @@ object Invoice extends APIResource {
   }
 
   def all(params: Map[String,_] = Map.empty): InvoiceCollection = {
-    return request("GET", classURL, params).extract[InvoiceCollection]
+    request("GET", classURL, params).extract[InvoiceCollection]
   }
 
   def upcoming(params: Map[String, _]): Invoice = {
-    return request("GET", "%s/upcoming".format(classURL), params).extract[Invoice]
+    request("GET", "%s/upcoming".format(classURL), params).extract[Invoice]
   }
 }
 
@@ -389,11 +389,11 @@ case class Token(
 
 object Token extends APIResource {
   def create(params: Map[String,_]): Token = {
-    return request("POST", classURL, params).extract[Token]
+    request("POST", classURL, params).extract[Token]
   }
 
   def retrieve(id: String): Token = {
-    return request("GET", instanceURL(id)).extract[Token]
+    request("GET", instanceURL(id)).extract[Token]
   }
 }
 
@@ -403,7 +403,7 @@ case class Coupon(
   livemode: Boolean,
   percentOff: Int) extends APIResource {
   def delete(): DeletedCoupon = {
-    return request("DELETE", instanceURL(this.id)).extract[DeletedCoupon]
+    request("DELETE", instanceURL(this.id)).extract[DeletedCoupon]
   }
 }
 
@@ -413,14 +413,14 @@ case class DeletedCoupon(id: String, deleted: Boolean)
 
 object Coupon extends APIResource {
   def create(params: Map[String,_]): Coupon = {
-    return request("POST", classURL, params).extract[Coupon]
+    request("POST", classURL, params).extract[Coupon]
   }
 
   def retrieve(id: String): Coupon = {
-    return request("GET", instanceURL(id)).extract[Coupon]
+    request("GET", instanceURL(id)).extract[Coupon]
   }
 
   def all(params: Map[String,_] = Map.empty): CouponCollection = {
-    return request("GET", classURL, params).extract[CouponCollection]
+    request("GET", classURL, params).extract[CouponCollection]
   }
 }
