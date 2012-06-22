@@ -49,7 +49,7 @@ abstract class APIResource {
       foo=bar&nested[a]=b&nested[c]=d
   */
   def flattenParam(k: String, v: Any): List[(String, String)] = {
-    return v match {
+    v match {
       case None => Nil
       case m: Map[_,_] => m.flatMap(kv => flattenParam("%s[%s]".format(k,kv._1), kv._2)).toList
       case _ => List((k,v.toString))
@@ -90,7 +90,7 @@ abstract class APIResource {
     new HttpGet("%s?%s".format(url, paramList.map(kv => urlEncodePair(kv._1, kv._2)).mkString("&")))
   }
 
-  def deleteRequest(url: String): HttpRequestBase = { return new HttpDelete(url) }
+  def deleteRequest(url: String): HttpRequestBase = new HttpDelete(url)
 
   def postRequest(url: String, paramList: List[(String, String)]): HttpRequestBase = {
     val request = new HttpPost(url)
@@ -123,8 +123,7 @@ abstract class APIResource {
 
   def request(method: String, url: String, params: Map[String,_] = Map.empty): json.JValue = {
     val (rBody, rCode) = rawRequest(method, url, params)
-    val jsonAST = interpretResponse(rBody, rCode)
-    return jsonAST
+    interpretResponse(rBody, rCode)
   }
 
   val CamelCaseRegex = new Regex("(_.)")
@@ -136,7 +135,7 @@ abstract class APIResource {
         fieldName, (m: Regex.Match) => m.matched.substring(1).toUpperCase), x)
     }
     if (rCode < 200 || rCode >= 300) handleAPIError(rBody, rCode, jsonAST)
-    return jsonAST
+    jsonAST
   }
 
   def handleAPIError(rBody: String, rCode: Int, jsonAST: json.JValue) {
@@ -366,7 +365,7 @@ case class InvoiceCollection(count: Int, data: List[Invoice])
 
 object Invoice extends APIResource {
   def retrieve(id: String): Invoice = {
-    return request("GET", instanceURL(id)).extract[Invoice]
+    request("GET", instanceURL(id)).extract[Invoice]
   }
 
   def all(params: Map[String,_] = Map.empty): InvoiceCollection = {
