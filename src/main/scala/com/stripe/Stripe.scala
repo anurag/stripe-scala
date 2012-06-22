@@ -74,7 +74,7 @@ abstract class APIResource {
     val defaultHeaders = asJavaCollection(List(
       new BasicHeader("X-Stripe-Client-User-Agent", json.compact(json.render(fullPropMap))),
       new BasicHeader("User-Agent", "Stripe/v1 ScalaBindings/%s".format(BindingsVersion)),
-      new BasicHeader("Authorization", "Basic %s".format(base64("%s:".format(apiKey))))
+      new BasicHeader("Authorization", "Bearer %s".format(apiKey))
     ))
 
     val httpParams = new SyncBasicHttpParams().
