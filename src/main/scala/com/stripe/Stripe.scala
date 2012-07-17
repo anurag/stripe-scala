@@ -398,7 +398,6 @@ case class Token(
   id: String,
   created: Int,
   livemode: Boolean,
-  amount: Int,
   used: Boolean,
   card: Card) extends APIResource {
 }
