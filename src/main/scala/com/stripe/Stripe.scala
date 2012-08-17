@@ -29,7 +29,7 @@ case class AuthenticationException(msg: String) extends StripeException(msg)
 
 abstract class APIResource {
   val ApiBase = "https://api.stripe.com/v1"
-  val BindingsVersion = "1.1.1"
+  val BindingsVersion = "1.1.2"
   val CharSet = "UTF-8"
 
   //lift-json format initialization
@@ -41,6 +41,7 @@ abstract class APIResource {
   val className = this.getClass.getSimpleName.toLowerCase.replace("$","")
   val classURL = "%s/%ss".format(ApiBase, className)
   def instanceURL(id: String) = "%s/%s".format(classURL, id)
+  val singleInstanceURL = "%s/%s".format(ApiBase, className)
 
   /*
       We want POST vars of form:
@@ -441,5 +442,20 @@ object Coupon extends APIResource {
 
   def all(params: Map[String,_] = Map.empty): CouponCollection = {
     request("GET", classURL, params).extract[CouponCollection]
+  }
+}
+
+case class Account(
+  id: String,
+  email: Option[String],
+  statementDescriptor: Option[String],
+  detailsSubmitted: Boolean,
+  chargeEnabled: Boolean,
+  currenciesSupported: Array[String]
+) extends APIResource
+
+object Account extends APIResource {
+  def retrieve: Account = {
+    request("GET", singleInstanceURL).extract[Account]
   }
 }
