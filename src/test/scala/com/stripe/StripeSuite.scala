@@ -6,7 +6,7 @@ import java.util.UUID
 
 trait StripeSuite extends ShouldMatchers {
   //set the stripe API key
-  apiKey = System.getProperty("stripeApiKey")
+  apiKey = "tGN0bIwXnHdwOa85VABjPdSn8nWY7G7I"
 
   val DefaultCardMap = Map(
     "name" -> "Scala User",
@@ -249,18 +249,18 @@ class InvoiceSuite extends FunSuite with StripeSuite {
 
 class TokenSuite extends FunSuite with StripeSuite {
   test("Tokens can be created") {
-    val token = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
+    val token = Token.create(Map("card" -> DefaultCardMap))
     token.used should be (false)
   }
 
   test("Tokens can be retrieved") {
-    val createdToken = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
+    val createdToken = Token.create(Map("card" -> DefaultCardMap))
     val retrievedToken = Token.retrieve(createdToken.id)
     createdToken.created should equal (retrievedToken.created)
   }
 
   test("Tokens can be used") {
-    val createdToken = Token.create(Map("amount" -> 100, "currency" -> "usd", "card" -> DefaultCardMap))
+    val createdToken = Token.create(Map("card" -> DefaultCardMap))
     createdToken.used should be (false)
     val charge = Charge.create(Map("amount" -> 100, "currency" -> "usd", "card" -> createdToken.id))
     val retrievedToken = Token.retrieve(createdToken.id)
@@ -291,5 +291,17 @@ class CouponSuite extends FunSuite with StripeSuite {
     val coupon = Coupon.create(getUniqueCouponMap)
     val coupons = Coupon.all().data
     coupons.head.isInstanceOf[Coupon] should be (true)
+  }
+}
+
+class AccountSuite extends FunSuite with StripeSuite {
+  test("Account can be retrieved") {
+    val account = Account.retrieve
+    account.email should equal (Some("test+bindings@stripe.com"))
+    account.chargeEnabled should equal (false)
+    account.detailsSubmitted should be (false)
+    account.statementDescriptor should be (None)
+    account.currenciesSupported.length should be (1)
+    account.currenciesSupported.head should be ("USD")
   }
 }
