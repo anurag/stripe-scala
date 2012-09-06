@@ -16,10 +16,40 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "1.6.1" % "test"
 )
 
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
 
-publishTo <<= (version) { version: String =>
-  val nexus = "http://nexus.scala-tools.org/content/repositories/"
-  if (version.trim.endsWith("SNAPSHOT")) Some("snapshots" at nexus + "snapshots/")
-  else                                   Some("releases"  at nexus + "releases/")
+publishTo <<= version { v: String =>
+  val nexus = "https://oss.sonatype.org/"
+  if (v.trim.endsWith("SNAPSHOT"))
+    Some("snapshots" at nexus + "content/repositories/snapshots")
+  else
+    Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
+
+publishMavenStyle := true
+
+publishArtifact in Test := false
+
+pomIncludeRepository := { x => false }
+
+pomExtra := (
+  <url>http://www.stripe.com/</url>
+  <licenses>
+    <license>
+      <name>MIT</name>
+      <url>http://www.opensource.org/licenses/mit-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <scm>
+    <url>git@github.com:stripe/stripe-scala.git</url>
+    <connection>scm:git:git@github.com:stripe/stripe-scala.git</connection>
+  </scm>
+  <developers>
+    <developer>
+      <id>siddarth</id>
+      <name>Siddarth Chandrasekaran</name>
+      <url>https://stripe.com/about#siddarth</url>
+    </developer>
+  </developers>
+)
+
