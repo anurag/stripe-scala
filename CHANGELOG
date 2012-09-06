@@ -1,0 +1,5 @@
+=== 1.1.2 2012-08-15
+
+* Add new com.stripe.Account API Resource.
+* Remove `amount` and `currency` from Token creation tests.
+* Use default API bindings key for tests.
