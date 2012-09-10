@@ -459,3 +459,29 @@ object Account extends APIResource {
     request("GET", singleInstanceURL).extract[Account]
   }
 }
+
+case class EventData(
+  `object`: Map[String, Object],
+  previous_attributes: Option[Map[String, Object]]
+) extends APIResource
+
+case class EventCollection(count: Int, data: List[Event])
+
+case class Event(
+  id: String,
+  created: Long,
+  livemode: Boolean,
+  `type`: String,
+  data: Option[Any],
+  pending_webhooks: Option[Int]
+) extends APIResource
+
+object Event extends APIResource {
+  def retrieve(id: String): Event = {
+    request("GET", instanceURL(id)).extract[Event]
+  }
+
+  def all(params: Map[String,_] = Map.empty): EventCollection = {
+    request("GET", classURL, params).extract[EventCollection]
+  }
+}

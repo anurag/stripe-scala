@@ -305,3 +305,20 @@ class AccountSuite extends FunSuite with StripeSuite {
     account.currenciesSupported.head should be ("USD")
   }
 }
+
+class EventSuite extends FunSuite with StripeSuite {
+  test("Events can be listed") {
+    val params = Map("count" -> 20)
+    val events = Event.all(params)
+    events.data.size should equal (20)
+  }
+
+  test("An event can be retrieved") {
+    val eventId = "evt_0LJ2GqK1SuYhkF"
+    val event = Event.retrieve(eventId)
+    event.id should equal (eventId)
+    event.livemode should equal (false)
+    event.`type` should equal("charge.succeeded")
+    event.data should not be (None)
+  }
+}
