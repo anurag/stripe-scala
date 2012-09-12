@@ -319,6 +319,7 @@ class EventSuite extends FunSuite with StripeSuite {
     event.id should equal (eventId)
     event.livemode should equal (false)
     event.`type` should equal("charge.succeeded")
-    event.data should not be (None)
+    event.`object` should equal("event")
+//    event.data should not be (None)
   }
 }

@@ -19,6 +19,8 @@ import org.apache.http.util._
 
 import net.liftweb.json
 import net.liftweb.json.JsonDSL._
+import net.liftweb.json._
+import net.liftweb.json.Serialization
 
 sealed abstract class StripeException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 case class APIException(msg: String, cause: Throwable = null) extends StripeException(msg, cause)
@@ -33,7 +35,7 @@ abstract class APIResource {
   val CharSet = "UTF-8"
 
   //lift-json format initialization
-  implicit val formats = json.DefaultFormats
+  implicit val formats = json.DefaultFormats + new EventDataSerializer
 
   //utility methods
   def base64(in: String) = new String(Base64.encodeBase64(in.getBytes(CharSet)))
@@ -460,10 +462,14 @@ object Account extends APIResource {
   }
 }
 
-case class EventData(
-  `object`: Map[String, Object],
+class EventData(
+  `object`: Option[JObject],
   previous_attributes: Option[Map[String, Object]]
-) extends APIResource
+) extends APIResource {
+    def this() = {
+      this(None, None)
+    }
+  }
 
 case class EventCollection(count: Int, data: List[Event])
 
@@ -471,8 +477,9 @@ case class Event(
   id: String,
   created: Long,
   livemode: Boolean,
+  `object`: String,
   `type`: String,
-  data: Option[Any],
+  data: EventData,
   pending_webhooks: Option[Int]
 ) extends APIResource
 
@@ -484,4 +491,31 @@ object Event extends APIResource {
   def all(params: Map[String,_] = Map.empty): EventCollection = {
     request("GET", classURL, params).extract[EventCollection]
   }
+}
+
+class EventDataSerializer extends Serializer[EventData] {
+  val ObjectClassMap = Map[String, Any](
+      "charge" -> classOf[Charge],
+      "discount" -> classOf[Discount],
+      "customer" -> classOf[Customer],
+      "invoice" -> classOf[Invoice],
+      "invoiceitem" -> classOf[InvoiceItem],
+      "plan" -> classOf[Plan],
+      "subscription" -> classOf[Subscription],
+      "token" -> classOf[Token],
+      "coupon" -> classOf[Coupon]
+  )
+
+  private val EventDataClass = classOf[EventData]
+
+  def deserialize(implicit format: Formats): PartialFunction[(TypeInfo, JValue), EventData] = {
+    case (TypeInfo(EventDataClass, _), json) => json match {
+     case x => new EventData
+    }
+  }
+
+  def serialize(implicit format: Formats): PartialFunction[Any, JValue] = {
+    case x => throw new Exception("check")
+  }
+
 }
