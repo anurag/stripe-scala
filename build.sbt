@@ -12,7 +12,7 @@ scalacOptions ++= Seq("-unchecked", "-deprecation")
 
 libraryDependencies ++= Seq(
   "org.apache.httpcomponents" % "httpclient" % "[4.1, 4.2)",
-  "net.liftweb" %% "lift-json" % "2.4-M4",
+  "net.liftweb" %% "lift-json" % "2.5-RC1",
   "org.scalatest" %% "scalatest" % "1.6.1" % "test"
 )
 
