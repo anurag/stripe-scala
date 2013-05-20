@@ -407,6 +407,7 @@ case class Invoice(
   livemode: Boolean,
   attemptCount: Int,
   amountDue: Int,
+  currency: String,
   startingBalance: Int,
   endingBalance: Option[Int],
   nextPaymentAttempt: Option[Long],
