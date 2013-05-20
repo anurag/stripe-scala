@@ -19,6 +19,7 @@ import org.apache.http.util._
 
 import net.liftweb.json
 import net.liftweb.json.JsonDSL._
+import net.liftweb.json.JsonAST
 
 sealed abstract class StripeException(msg: String, cause: Throwable = null) extends Exception(msg, cause)
 case class APIException(msg: String, cause: Throwable = null) extends StripeException(msg, cause)
@@ -29,7 +30,7 @@ case class AuthenticationException(msg: String) extends StripeException(msg)
 
 abstract class APIResource {
   val ApiBase = "https://api.stripe.com/v1"
-  val BindingsVersion = "1.1.2"
+  val BindingsVersion = "1.1.3"
   val CharSet = "UTF-8"
 
   //lift-json format initialization
@@ -162,6 +163,7 @@ case class Error(`type`: String, message: String, code: Option[String], param: O
 case class Card(
   last4: String,
   `type`: String,
+  `object`: String,
   expMonth: Int,
   expYear: Int,
   fingerprint: String,
@@ -171,22 +173,27 @@ case class Card(
   addressLine2: Option[String] = None,
   addressZip: Option[String] = None,
   addressState: Option[String] = None,
+  addressCity: Option[String] = None,
   addressCountry: Option[String] = None,
   cvcCheck: Option[String] = None,
   addressLine1Check: Option[String] = None,
   addressZipCheck: Option[String] = None) extends APIResource
 
+
 case class Charge(
   created: Long,
   id: String,
+  `object`: String,
   livemode: Boolean,
   paid: Boolean,
   amount: Int,
   currency: String,
   refunded: Boolean,
-  disputed: Boolean,
+  dispute: Option[String] = None,
   fee: Int,
   card: Card,
+  captured: Boolean,
+  feeDetails: List[FeeDetail],
   failureMessage: Option[String],
   amountRefunded: Option[Int],
   customer: Option[String],
@@ -211,6 +218,15 @@ object Charge extends APIResource {
   }
 
 }
+
+case class FeeDetail(
+  amount: Int,
+  currency: String,
+  `type`: String,
+  description: Option[String],
+  application: Option[String],
+  amountRefunded: Option[Int]
+)
 
 case class Customer(
   created: Long,
@@ -262,6 +278,8 @@ case class Plan(
   id: String,
   name: String,
   interval: String,
+  intervalCount: Int,
+  `object`: String,
   amount: Int,
   currency: String,
   livemode: Boolean,
@@ -350,11 +368,27 @@ object InvoiceItem extends APIResource {
 
 case class InvoiceLineSubscriptionPeriod(start: Long, end: Long)
 case class InvoiceLineSubscription(plan: Plan, amount: Int, period: InvoiceLineSubscriptionPeriod)
+
 case class InvoiceLines(
-  subscriptions: List[InvoiceLineSubscription],
-  invoiceItems: List[InvoiceItem],
-  prorations: List[InvoiceItem]) extends APIResource {
-}
+  `object`: String,
+  count: Int,
+  url: String,
+  data: List[InvoiceLine]
+)
+
+case class InvoiceLine(
+  id: String,
+  `object`: String,
+  `type`: String,
+  livemode: Boolean,
+  amount: Int,
+  currency: String,
+  proration: Boolean,
+  period: InvoiceLineSubscriptionPeriod,
+  quantity: Option[Int],
+  plan: Option[Plan],
+  description: Option[String]
+)
 
 case class Invoice(
   date: Long,
@@ -366,12 +400,14 @@ case class Invoice(
   subtotal: Int,
   total: Int,
   customer: String,
+  `object`: String,
   attempted: Boolean,
   closed: Boolean,
   paid: Boolean,
   livemode: Boolean,
   attemptCount: Int,
   amountDue: Int,
+  currency: String,
   startingBalance: Int,
   endingBalance: Option[Int],
   nextPaymentAttempt: Option[Long],
@@ -379,7 +415,7 @@ case class Invoice(
   discount: Option[Discount]) {
 }
 
-case class InvoiceCollection(count: Int, data: List[Invoice])
+case class InvoiceCollection(`object`: String, count: Int, url: String, data: List[Invoice])
 
 object Invoice extends APIResource {
   def retrieve(id: String): Invoice = {

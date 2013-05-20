@@ -234,8 +234,8 @@ class InvoiceSuite extends FunSuite with StripeSuite {
     val invoices = Invoice.all(Map("customer" -> customer.id)).data
     val invoice = invoices.head
     invoice.customer should equal (customer.id)
-    val invoiceLineSubscription = invoice.lines.subscriptions.head
-    invoiceLineSubscription.plan.id should equal (plan.id)
+    val invoiceLineSubscription = invoice.lines.data.head
+    invoiceLineSubscription.plan.map(_.id) should equal (Some(plan.id))
   }
 
   test("Upcoming Invoices can be retrieved") {
