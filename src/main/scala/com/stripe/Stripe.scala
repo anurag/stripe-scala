@@ -27,10 +27,14 @@ case class CardException(msg: String, code: Option[String] = None, param: Option
 case class InvalidRequestException(msg: String, param: Option[String] = None) extends StripeException(msg)
 case class AuthenticationException(msg: String) extends StripeException(msg)
 
-abstract class APIResource {
+object APIResource {
   val ApiBase = "https://api.stripe.com/v1"
   val BindingsVersion = "1.1.2"
   val CharSet = "UTF-8"
+  val ApiVersion: Option[String] = None
+}
+abstract class APIResource {
+  import APIResource._
 
   //lift-json format initialization
   implicit val formats = json.DefaultFormats
@@ -72,11 +76,17 @@ abstract class APIResource {
       "publisher" -> "stripe"
     )
 
-    val defaultHeaders = asJavaCollection(List(
-      new BasicHeader("X-Stripe-Client-User-Agent", json.compact(json.render(fullPropMap))),
-      new BasicHeader("User-Agent", "Stripe/v1 ScalaBindings/%s".format(BindingsVersion)),
-      new BasicHeader("Authorization", "Bearer %s".format(apiKey))
-    ))
+    val defaultHeaders = {
+      val baseHeaders = List(
+        new BasicHeader("X-Stripe-Client-User-Agent", json.compact(json.render(fullPropMap))),
+        new BasicHeader("User-Agent", "Stripe/v1 ScalaBindings/%s".format(BindingsVersion)),
+        new BasicHeader("Authorization", "Bearer %s".format(apiKey))
+      )
+
+      val apiVersionHeader = ApiVersion.map(new BasicHeader("Stripe-Version", _)).toList
+
+      asJavaCollection(baseHeaders ++ apiVersionHeader)
+    }
 
     val httpParams = new SyncBasicHttpParams().
       setParameter(ClientPNames.DEFAULT_HEADERS, defaultHeaders).
