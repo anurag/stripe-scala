@@ -27,14 +27,10 @@ case class CardException(msg: String, code: Option[String] = None, param: Option
 case class InvalidRequestException(msg: String, param: Option[String] = None) extends StripeException(msg)
 case class AuthenticationException(msg: String) extends StripeException(msg)
 
-object APIResource {
+abstract class APIResource {
   val ApiBase = "https://api.stripe.com/v1"
   val BindingsVersion = "1.1.2"
   val CharSet = "UTF-8"
-  val ApiVersion: Option[String] = None
-}
-abstract class APIResource {
-  import APIResource._
 
   //lift-json format initialization
   implicit val formats = json.DefaultFormats
@@ -83,7 +79,7 @@ abstract class APIResource {
         new BasicHeader("Authorization", "Bearer %s".format(apiKey))
       )
 
-      val apiVersionHeader = ApiVersion.map(new BasicHeader("Stripe-Version", _)).toList
+      val apiVersionHeader = apiVersion.map(new BasicHeader("Stripe-Version", _)).toList
 
       asJavaCollection(baseHeaders ++ apiVersionHeader)
     }
