@@ -173,6 +173,7 @@ case class Error(`type`: String, message: String, code: Option[String], param: O
 case class CardCollection(count: Int, data: List[Card])
 
 case class Card(
+  id: String,
   last4: String,
   `type`: String,
   expMonth: Int,
