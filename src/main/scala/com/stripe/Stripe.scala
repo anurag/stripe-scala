@@ -91,7 +91,12 @@ abstract class APIResource {
     new HttpGet("%s?%s".format(url, paramList.map(kv => urlEncodePair(kv._1, kv._2)).mkString("&")))
   }
 
-  def deleteRequest(url: String): HttpRequestBase = new HttpDelete(url)
+  def deleteRequest(url: String, paramList: List[(String, String)]): HttpRequestBase = {
+    val request = new HttpDeleteWithBody(url)
+    val deleteParamList = paramList.map(kv => new BasicNameValuePair(kv._1, kv._2))
+    request.setEntity(new UrlEncodedFormEntity(seqAsJavaList(deleteParamList), CharSet))
+    request
+  }
 
   def postRequest(url: String, paramList: List[(String, String)]): HttpRequestBase = {
     val request = new HttpPost(url)
@@ -106,7 +111,7 @@ abstract class APIResource {
     try {
       val request = method.toLowerCase match {
         case "get" => getRequest(url, paramList)
-        case "delete" => deleteRequest(url)
+        case "delete" => deleteRequest(url, paramList)
         case "post" => postRequest(url, paramList)
         case _ => throw new APIConnectionException("Unrecognized HTTP method %r. This may indicate a bug in the Stripe bindings. Please contact support@stripe.com for assistance.".format(method))
       }
