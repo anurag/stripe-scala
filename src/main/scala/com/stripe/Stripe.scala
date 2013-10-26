@@ -266,6 +266,10 @@ case class Plan(
   currency: String,
   livemode: Boolean,
   trialPeriodDays: Option[Int]) extends APIResource {
+  def update(params: Map[String,_]): Plan = {
+    request("POST", instanceURL(this.id), params).extract[Plan]
+  }
+
   def delete(): DeletedPlan = {
     request("DELETE", instanceURL(this.id)).extract[DeletedPlan]
   }
