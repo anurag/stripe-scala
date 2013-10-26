@@ -84,7 +84,7 @@ class CustomerSuite extends FunSuite with StripeSuite {
   test("Customers can be created") {
     val customer = Customer.create(DefaultCustomerMap + ("description" -> "Test Description"))
     customer.description.get should be ("Test Description")
-    customer.activeCard.isEmpty should be (false)
+    customer.defaultCard.isEmpty should be (false)
   }
 
   test("Customers can be retrieved individually") {

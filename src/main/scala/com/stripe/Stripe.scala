@@ -164,6 +164,8 @@ abstract class APIResource {
 case class ErrorContainer(error: Error)
 case class Error(`type`: String, message: String, code: Option[String], param: Option[String])
 
+case class CardCollection(count: Int, data: List[Card])
+
 case class Card(
   last4: String,
   `type`: String,
@@ -222,7 +224,8 @@ case class Customer(
   id: String,
   livemode: Boolean,
   description: Option[String],
-  activeCard: Option[Card],
+  cards: CardCollection,
+  defaultCard: Option[String],
   email: Option[String],
   delinquent: Option[Boolean],
   subscription: Option[Subscription],
