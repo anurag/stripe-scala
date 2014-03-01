@@ -190,6 +190,19 @@ case class Card(
   addressLine1Check: Option[String] = None,
   addressZipCheck: Option[String] = None) extends APIResource
 
+case class Dispute(
+  livemode: Boolean,
+  amount: Int,
+  balanceTransaction: String,
+  charge: String,
+  created: Long,
+  currency: String,
+  reason: String,
+  status: String,
+  evidence: String,
+  evidenceDueBy: Long
+)
+
 case class Charge(
   created: Long,
   id: String,
@@ -198,15 +211,20 @@ case class Charge(
   amount: Int,
   currency: String,
   refunded: Boolean,
-  disputed: Boolean,
-  fee: Int,
   card: Card,
+  balanceTransaction: String,
+  dispute: Option[Dispute],
   failureMessage: Option[String],
   amountRefunded: Option[Int],
   customer: Option[String],
   invoice: Option[String],
   description: Option[String]) extends APIResource {
+
   def refund(): Charge = request("POST", "%s/refund".format(instanceURL(this.id))).extract[Charge]
+  def updateDispute(params: Map[String, _]): Dispute =
+    request("POST", s"${instanceURL(id)}/dispute", params).extract[Dispute]
+  def closeDispute(): Dispute =
+    request("POST", s"${instanceURL(id)}/dispute/close").extract[Dispute]
 }
 
 case class ChargeCollection(count: Int, data: List[Charge])
