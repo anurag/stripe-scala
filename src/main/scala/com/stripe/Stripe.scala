@@ -393,12 +393,17 @@ object InvoiceItem extends APIResource {
 }
 
 case class InvoiceLineSubscriptionPeriod(start: Long, end: Long)
-case class InvoiceLineSubscription(plan: Plan, amount: Int, period: InvoiceLineSubscriptionPeriod)
-case class InvoiceLines(
-  subscriptions: List[InvoiceLineSubscription],
-  invoiceItems: List[InvoiceItem],
-  prorations: List[InvoiceItem]) extends APIResource {
-}
+case class InvoiceLine(
+  id: String,
+  livemode: Boolean,
+  amount: Long,
+  currency: String,
+  proration: Boolean,
+  period: InvoiceLineSubscriptionPeriod,
+  quantity: Option[Int],
+  plan: Option[Plan],
+  description: Option[String]) extends APIResource
+case class InvoiceLinesCollection(data: List[InvoiceLine], count: Int)
 
 case class Invoice(
   date: Long,
@@ -406,7 +411,7 @@ case class Invoice(
   id: Option[String],
   periodStart: Long,
   periodEnd: Long,
-  lines: InvoiceLines,
+  lines: InvoiceLinesCollection,
   subtotal: Int,
   total: Int,
   customer: String,
