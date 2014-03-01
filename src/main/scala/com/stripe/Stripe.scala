@@ -226,6 +226,8 @@ object Charge extends APIResource {
 
 }
 
+case class SubscriptionCollection(count: Int, data: List[Subscription])
+
 case class Customer(
   created: Long,
   id: String,
@@ -235,7 +237,7 @@ case class Customer(
   defaultCard: Option[String],
   email: Option[String],
   delinquent: Option[Boolean],
-  subscription: Option[Subscription],
+  subscriptions: SubscriptionCollection,
   discount: Option[Discount],
   accountBalance: Option[Int]) extends APIResource {
   def update(params: Map[String,_]): Customer = {
@@ -246,12 +248,16 @@ case class Customer(
     request("DELETE", instanceURL(this.id)).extract[DeletedCustomer]
   }
 
-  def updateSubscription(params: Map[String,_]): Subscription = {
-    request("POST", "%s/subscription".format(instanceURL(id)), params).extract[Subscription]
+  def createSubscription(params: Map[String,_]): Subscription = {
+    request("POST", s"${instanceURL(id)}/subscriptions", params).extract[Subscription]
   }
 
-  def cancelSubscription(params: Map[String,_] = Map.empty): Subscription = {
-    request("DELETE", "%s/subscription".format(instanceURL(id)), params).extract[Subscription]
+  def updateSubscription(subscriptionId: String, params: Map[String, _]): Subscription = {
+    request("POST", s"${instanceURL(id)}/subscriptions/$subscriptionId", params).extract[Subscription]
+  }
+
+  def cancelSubscription(subscriptionId: String, params: Map[String,_] = Map.empty): Subscription = {
+    request("DELETE", s"${instanceURL(id)}/subscriptions/$subscriptionId", params).extract[Subscription]
   }
 }
 
@@ -309,6 +315,7 @@ object Plan extends APIResource {
 }
 
 case class Subscription(
+  id: String,
   plan: Plan,
   start: Long,
   status: String,
